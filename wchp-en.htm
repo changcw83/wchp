@@ -13,10 +13,8 @@
 <textarea id="text" style="width:80vw;height:50vh">
 </textarea><br>
 <button onclick="proctext()" style="width:80vw;height:10vh;font-size:min(4vw,4vh)">Load From Textbox</button>
-<button onclick="play()" style="width:80vw;height:10vh;font-size:min(4vw,4vh)">PLAY</button>
-<button onclick="stop()" style="width:80vw;height:10vh;font-size:min(4vw,4vh)">STOP</button>
-<button onclick="nexttext()" style="width:80vw;height:10vh;font-size:min(4vw,4vh)">Next Section</button>
-<button onclick="prevtext()" style="width:80vw;height:10vh;font-size:min(4vw,4vh)">Prev Section</button>
+<button onclick="play()" style="width:40vw;height:10vh;font-size:min(4vw,4vh)">PLAY</button><button onclick="stop()" style="width:40vw;height:10vh;font-size:min(4vw,4vh)">STOP</button>
+<button onclick="prevtext()" style="width:40vw;height:10vh;font-size:min(4vw,4vh)">Prev Section</button><button onclick="nexttext()" style="width:40vw;height:10vh;font-size:min(4vw,4vh)">Next Section</button>
 <fieldset>
     <legend>Select Section</legend>
 <select id="select" style="width:80vw;height:10vh;font-size:min(4vw,4vh)">
@@ -72,7 +70,13 @@
       proctext();
   }
   function proctext() {
-    l__sentence = splitSentences($('#text').val());
+    regex=/The Wisdom for Creating Happiness and Peace brings together selections from President Ikeda’s works under key themes./
+    s=$('#text').val()
+    match=s.match(regex)
+    if(match){
+        s=s.slice(0,match.index)
+    }
+    l__sentence = splitSentences(s);
     l__s = []
     let i = 0;
     for (sentence of l__sentence) {
