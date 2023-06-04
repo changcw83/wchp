@@ -19,6 +19,7 @@ if (xhr.status === 200) {
     *{
     }
 </style>
+<a id="help" href="help.htm">???</a>
 <div id="display">
 </div>
 <textarea id="text" style="width:80vw;height:20vh">
@@ -39,7 +40,7 @@ if (xhr.status === 200) {
 </fieldset>
 
 <script>
-  langlabels={"cn":"从文本框加载,播放,停,上一章,下一章,选择章,速度,慢,快,中文读文器".split(","),"en":"Load From Textbox,PLAY,STOP,Prev Section,Next Section,Select Section,Speed,Slow,Fast,EN Text Reader".split(",")};    
+  langlabels={"cn":"从文本框加载,播放,停,上一章,下一章,选择章,速度,慢,快,中文读文器,帮助".split(","),"en":"Load From Textbox,PLAY,STOP,Prev Section,Next Section,Select Section,Speed,Slow,Fast,EN Text Reader,HELP".split(",")};    
   langfontsize={"cn":8,"en":6}    
   fontsize=langfontsize[lang];
   labels=langlabels[lang];
@@ -54,8 +55,7 @@ if (xhr.status === 200) {
         rule.style.fontSize = `min(${fontsize}vw,${fontsize}vh)`;
         break;
       }
-    }    
-    
+    }      
   $("#btn_playtb").html(labels[0]);
   $("#btn_play").html(labels[1]);
   $("#btn_stop").html(labels[2]);
@@ -66,6 +66,7 @@ if (xhr.status === 200) {
   $("#btn_slow").html(labels[7]);
   $("#btn_fast").html(labels[8]);
   document.title=labels[9];
+  $("#help").html(labels[10]);
   if ('speechSynthesis' in window){
     speech = new SpeechSynthesisUtterance();
     synth = window.speechSynthesis;
@@ -336,7 +337,6 @@ document.addEventListener('gesturestart', function (e) {
     synth.speak(speech);
   }    
 </script>
-
 
 
 
