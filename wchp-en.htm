@@ -18,7 +18,11 @@
 <fieldset>
     <legend>Select Section</legend>
 <select id="select" style="width:80vw;height:10vh;font-size:min(4vw,4vh)">
-</select>
+</select>  
+</fieldset>
+<fieldset>
+    <legend>Speed</legend>
+<input readonly type="number" value=100 id="speed" style="width:30vw;height:10vh;font-size:min(4vw,4vh)"><button style="width:20vw;height:10vh;font-size:min(4vw,4vh)" onclick="slow()">Slow</button><button style="width:20vw;height:10vh;font-size:min(4vw,4vh)" onclick="fast()">Fast</button>
 </fieldset>
 <script>
   document.addEventListener('gesturestart', function (e) {
@@ -53,6 +57,14 @@
       updatetext();
       proctext();
   })
+  function slow(){
+      let curval=parseInt($('#speed').val())
+      $('#speed').val(parseInt(Math.round(curval/1.1)))
+  }
+  function fast(){
+      let curval=parseInt($('#speed').val())
+      $('#speed').val(parseInt(Math.round(curval*1.1)))
+  }  
   function updatetext() {
       let i=parseInt($('#select').val())
       $('#text').val(data[i].content);
@@ -201,6 +213,7 @@
     }
 
     const utterance = new SpeechSynthesisUtterance(chunks[index]);
+    utterance.rate=parseInt($('#speed').val())/100    
     utterance.onend = function () {
       // Speak the next chunk after the current one has finished
       speakNextChunk(chunks, index + 1);
