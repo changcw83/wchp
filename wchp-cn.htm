@@ -1,0 +1,291 @@
+<title>中文读文器</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<script src='wchp-cn.js'></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+  .highlight {
+    background-color: yellow;
+    color: black;
+  }
+</style>
+<div id="display">
+</div>
+<textarea id="text" style="width:80vw;height:20vh">
+</textarea><br>
+<button onclick="proctext()" style="width:80vw;height:10vh;font-size:min(4vw,4vh)">从文本框加载</button>
+<button onclick="play()" style="width:40vw;height:10vh;font-size:min(4vw,4vh)">播放</button>
+<button onclick="stop()" style="width:40vw;height:10vh;font-size:min(4vw,4vh)">停</button>
+<button onclick="prevtext()" style="width:40vw;height:10vh;font-size:min(4vw,4vh)">上一章</button>
+<button onclick="nexttext()" style="width:40vw;height:10vh;font-size:min(4vw,4vh)">下一章</button>
+<fieldset>
+    <legend>选择章</legend>
+<select id="select" style="width:80vw;height:10vh;font-size:min(4vw,4vh)">
+</select>    
+</fieldset>
+<fieldset>
+    <legend>速度</legend>
+<input readonly type="number" value=100 id="speed" style="width:30vw;height:10vh;font-size:min(4vw,4vh)"><button style="width:20vw;height:10vh;font-size:min(4vw,4vh)" onclick="slow()">慢</button><button style="width:20vw;height:10vh;font-size:min(4vw,4vh)" onclick="fast()">快</button>
+</fieldset>
+
+<script>
+    
+  if ('speechSynthesis' in window){
+    speech = new SpeechSynthesisUtterance();
+    synth = window.speechSynthesis;
+    //alert('voice TTS supported')
+  } else {
+    alert('voice TTS not supported')
+    speech = null;
+    synth = null;
+  }
+  if (synth){
+    updatevoices=function(){
+      voices=synth.getVoices();
+      let s="";
+      lang='cn'        
+      for(i=0;i<voices.length;i++){
+        if (voices[i].lang.toLowerCase().indexOf(lang)>=0){
+           s+=(i+" "+voices[i].voiceURI)+" "+voices[i].lang
+        }
+      }
+      if (lang=='en'){
+          for(i=0;i<voices.length;i++){
+            let x=voices[i].lang.toLowerCase();
+            if (x.indexOf("en")>=0){
+              if (x.indexOf("gb")>=0)break;
+              if (x.indexOf("uk")>=0)break;
+            }
+          }
+          if (i>=voices.length){
+            for(i=0;i<voices.length;i++){
+              let x=voices[i].lang.toLowerCase();
+              if (x=="en") break;
+            }
+          }
+          if (i>=voices.length){
+            for(i=0;i<voices.length;i++){
+              let x=voices[i].lang.toLowerCase();
+              if (x.indexOf("en")>=0){
+                if (x.indexOf("us")>=0)break;
+              }
+            }
+          }
+      }
+      if (lang=='cn'){
+          for(i=0;i<voices.length;i++){
+            let x=voices[i].lang.toLowerCase();
+            if (x.indexOf("cn")>=0){
+              break;
+            }
+          }
+      }
+      if (i<voices.length){
+        speech.voice=voices[i];
+        speech.lang=speech.voice.lang;
+      }
+    };
+    synth.onvoiceschanged = updatevoices;
+    if(synth.getVoices().length>0){
+      updatevoices()
+    }
+  }    
+document.addEventListener('gesturestart', function (e) {
+    e.preventDefault();
+  });        
+    function populateSelect(id,options) {
+      var selectElement = document.getElementById(id);
+
+      // Clear any existing options
+      selectElement.innerHTML = "";
+
+      // Iterate over the options array and create option elements
+      var option = document.createElement("option");
+      option.value=-1;
+      option.text="";  
+      selectElement.appendChild(option);
+        
+      for (var i = 0; i < options.length; i++) {
+        var option = document.createElement("option");
+        option.value = i;
+        option.text = options[i];
+        selectElement.appendChild(option);
+      }
+    }
+  let l__sectname=[]
+  for(tc of data){
+      l__sectname.push(tc.title)
+  }
+  populateSelect('select',l__sectname)
+  $('#select').change(function(){
+      //alert(i);
+      updatetext();
+      proctext();
+  })
+  function slow(){
+      let curval=parseInt($('#speed').val())
+      $('#speed').val(parseInt(Math.round(curval/1.1)))
+  }
+  function fast(){
+      let curval=parseInt($('#speed').val())
+      $('#speed').val(parseInt(Math.round(curval*1.1)))
+  }
+  function updatetext() {
+      let i=parseInt($('#select').val())
+      $('#text').val(data[i].content);
+  }
+  function nexttext() {
+      let i=parseInt($('#select').val());
+      $('#select')[0].options.selectedIndex+=1;      
+      updatetext();
+      proctext();
+  }
+  function prevtext() {
+      let i=parseInt($('#select').val());
+      $('#select')[0].options.selectedIndex-=1;
+      updatetext();
+      proctext();
+  }
+  function proctext() {
+    regex=/《创造幸福与和平的智慧》一书汇集池田会长著作中的核心主题。/
+    s=$('#text').val()
+    match=s.match(regex)
+    if(match){
+        s=s.slice(0,match.index)
+    }
+    l__sentence = splitSentences(s);
+    l__s = []
+    let i = 0;
+    for (sentence of l__sentence) {
+      sentence = sentence.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      l__s.push(`<span class="sentence" index=${i}>${sentence}</span>`)
+      i += 1;
+    }
+    s = l__s.join('<br>')
+    $('#display').html(s);
+    $('.sentence').click(function(){
+      sentenceindex=parseInt($(this).attr('index'));
+      sentence=$(this).text()
+      $('.highlight').removeClass('highlight')
+      $(this).addClass('highlight')        
+      $(this)[0].scrollIntoView()
+      speak();
+    })
+    sentenceindex=0;
+  }
+  function play(){
+    if(sentenceindex==-1){
+        sentenceindex=0
+    }
+    $($('.sentence')[sentenceindex]).click()
+  }
+
+  function splitSentences(sentence) {
+    const regex = /[.!?。！？\n]+/;  // Regular expression for English punctuation
+    const regex2 = /(\d+[.]\d+|mr.|mrs.|dr.)/;
+    const sentences = [];
+    let currentIndex = 0;
+    while (currentIndex < sentence.length) {
+      //console.log(sentence.slice(currentIndex))
+      const match = sentence.toLowerCase().slice(currentIndex).match(regex);
+      const match2 = sentence.toLowerCase().slice(currentIndex).match(regex2);
+      if (match2 && match && (match2.index <= match.index)) {
+        const delimiter = match2[0];
+        const delimiterIndex = match2.index + currentIndex;
+        currentIndex = delimiterIndex + delimiter.length
+      }
+      else if (match) {
+        const delimiter = match[0];
+        const delimiterIndex = match.index + currentIndex;
+
+        const currentSentence = sentence.slice(0, delimiterIndex + delimiter.length).trim();
+        sentences.push(currentSentence);
+
+        sentence = sentence.slice(delimiterIndex + delimiter.length);
+        currentIndex = 0;
+      } else {
+        break;
+      }
+    }
+    if (currentIndex<sentence.length){
+        sentences.push(sentence)
+    }
+    return sentences;
+  }
+
+  function proctext2() {
+    var s = '';
+    var i = 0;
+    text = document.getElementById('text').value
+
+    numchars = text.length;
+    for (const c of text) {
+      console.log(c);
+      s += `<span class="character" index=${i} char="${c}">${c}</span>`;
+      i += 1;
+    }
+  }
+  function stop() {
+      synth.cancel();  
+  }
+  function speak() {
+    stop();
+    speakChunkedText(sentence, 1000);
+  }
+  function speakChunkedText(text, chunkSize) {
+    // Split the text into chunks of specified size
+    const chunks = splitTextIntoChunks(text, chunkSize);
+
+    // Speak each chunk consecutively
+    speakNextChunk(chunks, 0);
+  }
+
+  function splitTextIntoChunks(text, chunkSize) {
+    const chunks = [];
+    let currentPosition = 0;
+
+    while (currentPosition < text.length) {
+      // Find the next suitable breaking point based on word boundaries
+      let nextPosition = currentPosition + chunkSize;
+      if (nextPosition < text.length) {
+        while (nextPosition > currentPosition && text.charAt(nextPosition) !== ' ') {
+          nextPosition--;
+        }
+      }
+
+      // If no suitable breaking point found, take the whole remaining text
+      if (nextPosition <= currentPosition) {
+        nextPosition = currentPosition + chunkSize;
+      }
+
+      chunks.push(text.substring(currentPosition, nextPosition));
+      currentPosition = nextPosition;
+    }
+
+    return chunks;
+  }
+
+  function speakNextChunk(chunks, index) {
+    if (index >= chunks.length) {
+      sentenceindex+=1;
+      if (sentenceindex >= $('.sentence').length){
+          nexttext();
+          play();
+          return
+      }
+      $($('.sentence')[sentenceindex]).click();
+      return; // Finished speaking all chunks
+    }
+
+    //utterance = new SpeechSynthesisUtterance(chunks[index]);
+    //utterance.voice=voice;
+    speech.text=chunks[index];
+    speech.rate=parseInt($('#speed').val())/100
+    //alert(speech.voice.lang);
+    speech.onend = function () {
+      // Speak the next chunk after the current one has finished
+      speakNextChunk(chunks, index + 1);
+    };
+
+    synth.speak(speech);
+  }    
+</script>
