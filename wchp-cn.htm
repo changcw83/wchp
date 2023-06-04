@@ -1,34 +1,71 @@
 <title>中文读文器</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<script src='wchp-cn.js'></script>
+<script>lang="cn"</script>
+<script>
+var xhr = new XMLHttpRequest();
+xhr.open('GET', `wchp-${lang}.js`, false); // Replace 'script.js' with the path to your JavaScript file
+xhr.send(null);
+
+if (xhr.status === 200) {
+    eval(xhr.responseText);
+}
+</script>    
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <style>
   .highlight {
     background-color: yellow;
     color: black;
   }
+    *{
+    }
 </style>
-<div id="display" style="font-size:min(8vw,8vh)">
+<div id="display">
 </div>
 <textarea id="text" style="width:80vw;height:20vh">
 </textarea><br>
-<button onclick="loadfromtb()" style="width:80vw;height:10vh;font-size:min(8vw,8vh)">从文本框加载</button>
-<button onclick="play()" style="width:40vw;height:10vh;font-size:min(8vw,8vh)">播放</button>
-<button onclick="stop()" style="width:40vw;height:10vh;font-size:min(8vw,8vh)">停</button>
-<button onclick="prevtext()" style="width:40vw;height:10vh;font-size:min(8vw,8vh)">上一章</button>
-<button onclick="nexttext()" style="width:40vw;height:10vh;font-size:min(8vw,8vh)">下一章</button>
+<button id="btn_playtb" onclick="loadfromtb()" style="width:80vw;height:10vh;">从文本框加载</button>
+<button id="btn_play" onclick="play()" style="width:40vw;height:10vh;">播放</button>
+<button id="btn_stop" onclick="stop()" style="width:40vw;height:10vh;">停</button>
+<button id="btn_prev" onclick="prevtext()" style="width:40vw;height:10vh;">上一章</button>
+<button id="btn_next" onclick="nexttext()" style="width:40vw;height:10vh;">下一章</button>
 <fieldset>
-    <legend>选择章</legend>
+    <legend id="leg_select">选择章</legend>
 <select id="select" style="width:80vw;height:10vh;font-size:min(8vw,8vh)">
 </select>    
 </fieldset>
 <fieldset>
-    <legend>速度</legend>
-<input readonly type="number" value=100 id="speed" style="width:30vw;height:10vh;font-size:min(8vw,8vh)"><button style="width:20vw;height:10vh;font-size:min(8vw,8vh)" onclick="slow()">慢</button><button style="width:20vw;height:10vh;font-size:min(8vw,8vh)" onclick="fast()">快</button>
+    <legend id="leg_speed">速度</legend>
+<input readonly type="number" value=100 id="speed" style="width:30vw;height:10vh;font-size:min(8vw,8vh)"><button id="btn_slow" style="width:20vw;height:10vh;" onclick="slow()">慢</button><button id="btn_fast" style="width:20vw;height:10vh;" onclick="fast()">快</button>
 </fieldset>
 
 <script>
+  langlabels={"cn":"从文本框加载,播放,停,上一章,下一章,选择章,速度,慢,快,中文读文器".split(","),"en":"Load From Textbox,PLAY,STOP,Prev Section,Next Section,Select Section,Speed,Slow,Fast,EN Text Reader".split(",")};    
+  langfontsize={"cn":8,"en":6}    
+  fontsize=langfontsize[lang];
+  labels=langlabels[lang];
+    var styleSheet = document.styleSheets[0]; // You may need to adjust the index based on your specific style sheet
+
+    // Find the rule associated with the class
+    var rules = styleSheet.cssRules || styleSheet.rules;
+    for (var i = 0; i < rules.length; i++) {
+      var rule = rules[i];
+      if (rule.selectorText === "*") { // Replace ".myClass" with your class selector
+        // Modify the style properties of the rule
+        rule.style.fontSize = `min(${fontsize}vw,${fontsize}vh)`;
+        break;
+      }
+    }    
     
+  $("#btn_playtb").html(labels[0]);
+  $("#btn_play").html(labels[1]);
+  $("#btn_stop").html(labels[2]);
+  $("#btn_prev").html(labels[3]);
+  $("#btn_next").html(labels[4]);
+  $("#leg_select").html(labels[5]);
+  $("#leg_speed").html(labels[6]);
+  $("#btn_slow").html(labels[7]);
+  $("#btn_fast").html(labels[8]);
+  document.title=labels[9];
   if ('speechSynthesis' in window){
     speech = new SpeechSynthesisUtterance();
     synth = window.speechSynthesis;
@@ -42,7 +79,6 @@
     updatevoices=function(){
       voices=synth.getVoices();
       let s="";
-      lang='cn'        
       for(i=0;i<voices.length;i++){
         if (voices[i].lang.toLowerCase().indexOf(lang)>=0){
            s+=(i+" "+voices[i].voiceURI)+" "+voices[i].lang
@@ -300,3 +336,9 @@ document.addEventListener('gesturestart', function (e) {
     synth.speak(speech);
   }    
 </script>
+
+
+
+
+
+
