@@ -12,7 +12,7 @@
 </div>
 <textarea id="text" style="width:80vw;height:20vh">
 </textarea><br>
-<button onclick="proctext()" style="width:80vw;height:10vh;font-size:min(8vw,8vh)">从文本框加载</button>
+<button onclick="loadfromtb()" style="width:80vw;height:10vh;font-size:min(8vw,8vh)">从文本框加载</button>
 <button onclick="play()" style="width:40vw;height:10vh;font-size:min(8vw,8vh)">播放</button>
 <button onclick="stop()" style="width:40vw;height:10vh;font-size:min(8vw,8vh)">停</button>
 <button onclick="prevtext()" style="width:40vw;height:10vh;font-size:min(8vw,8vh)">上一章</button>
@@ -133,17 +133,24 @@ document.addEventListener('gesturestart', function (e) {
       let i=parseInt($('#select').val())
       $('#text').val(data[i].content);
   }
+  // edit01
   function nexttext() {
-      let i=parseInt($('#select').val());
       $('#select')[0].options.selectedIndex+=1;      
       updatetext();
       proctext();
   }
+  // edit01
   function prevtext() {
-      let i=parseInt($('#select').val());
+      if ($('#select')[0].options.selectedIndex==0)$('#select')[0].options.selectedIndex=2
       $('#select')[0].options.selectedIndex-=1;
       updatetext();
       proctext();
+  }
+  // edit01
+  function loadfromtb() {
+    $('#select')[0].options.selectedIndex=0;
+    proctext();
+    play();
   }
   function proctext() {
     regex=/《创造幸福与和平的智慧》一书汇集池田会长著作中的核心主题。/
@@ -268,10 +275,14 @@ document.addEventListener('gesturestart', function (e) {
     if (index >= chunks.length) {
       sentenceindex+=1;
       if (sentenceindex >= $('.sentence').length){
-          nexttext();
-          play();
+          // edit01
+          // don't auto advance when custom text 
+          if($('#select')[0].options.selectedIndex>0){
+            nexttext();
+            play();
+          }
           return
-      }
+      }      
       $($('.sentence')[sentenceindex]).click();
       return; // Finished speaking all chunks
     }
