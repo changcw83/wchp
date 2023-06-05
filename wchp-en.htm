@@ -208,14 +208,16 @@ document.addEventListener('gesturestart', function (e) {
           const start = match.index;
           const end = start + match[0].length;
           if(start>25){
-              s+=str.slice(si,start)
-              si=end
+              //s+=str.slice(si,start)
+              si=end  
+              break;
           } else {
-              s+=str.slice(si,end)
-              si=end
+              //s+=str.slice(si,end)
+              //si=end
           }
         }
-        s+=str.slice(si)
+        if(si>0){s=str.slice(0,si)}
+        else{s=str}
     }
     l__sentence = splitSentences(s);
     l__s = []
