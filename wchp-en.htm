@@ -191,33 +191,18 @@ document.addEventListener('gesturestart', function (e) {
   }
   function proctext() {
     sectionindex=$('#select')[0].options.selectedIndex  
-    if(lang=="cn"&&sectionindex>0){
-        regex=/《创造幸福与和平的智慧》一书汇集池田..著作中的核心主题。/
-        s=$('#text').val()
+    s=$('#text').val()
+    if(sectionindex>0){
+        if(lang=="cn"){
+            regex=/《创造幸福与和平的智慧》一书汇集池田..著作中的核心主题。/
+        }
+        if(lang=="en"){
+            regex=/The Wisdom for Creating Happiness and Peace brings together selections from President Ikeda’s works under key themes./
+        }
         match=s.match(regex)
         if(match){
             s=s.slice(0,match.index)
         }
-    }
-    if(lang=="en"&&sectionindex>0){
-        regex=/Part.*Chapter.*/g
-        str=$('#text').val()
-        s=""
-        let si=0
-        while ((match = regex.exec(str)) !== null) {
-          const start = match.index;
-          const end = start + match[0].length;
-          if(start>25){
-              //s+=str.slice(si,start)
-              si=start
-              break;
-          } else {
-              //s+=str.slice(si,end)
-              //si=end
-          }
-        }
-        if(si>0){s=str.slice(0,si)}
-        else{s=str}
     }
     l__sentence = splitSentences(s);
     l__s = []
