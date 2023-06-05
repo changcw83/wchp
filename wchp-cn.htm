@@ -190,11 +190,32 @@ document.addEventListener('gesturestart', function (e) {
     play();
   }
   function proctext() {
-    regex=/《创造幸福与和平的智慧》一书汇集池田会长著作中的核心主题。/
-    s=$('#text').val()
-    match=s.match(regex)
-    if(match){
-        s=s.slice(0,match.index)
+    sectionindex=$('#select')[0].options.selectedIndex  
+    if(lang=="cn"&&sectionindex>0){
+        regex=/《创造幸福与和平的智慧》一书汇集池田会长著作中的核心主题。/
+        s=$('#text').val()
+        match=s.match(regex)
+        if(match){
+            s=s.slice(0,match.index)
+        }
+    }
+    if(lang=="en"&&sectionindex>0){
+        regex=/Part.*Chapter.*/g
+        str=$('#text').val()
+        s=""
+        let si=0
+        while ((match = regex.exec(str)) !== null) {
+          const start = match.index;
+          const end = start + match[0].length;
+          if(start>25){
+              s+=str.slice(si,start)
+              si=end
+          } else {
+              s+=str.slice(si,end)
+              si=end
+          }
+        }
+        s+=str.slice(si)
     }
     l__sentence = splitSentences(s);
     l__s = []
