@@ -191,7 +191,7 @@ document.addEventListener('gesturestart', function (e) {
   }
   function proctext() {
     sectionindex=$('#select')[0].options.selectedIndex  
-    s=$('#text').val()
+    s=$('#text').val().replace("＜","《").replace("＞","》")
     if(sectionindex>0){
         if(lang=="cn"){
             regex=/《创造幸福与和平的智慧》一书汇集池田..著作中的核心主题。/
